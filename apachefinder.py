@@ -5,6 +5,7 @@ import requests as req
 from os.path import exists
 from os import system, name
 from multiprocessing.dummy import Pool
+from colorama import Fore,Style
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -29,17 +30,26 @@ class ApacheVuln:
             system("clear")
 
     def ApacheCheck(self,website):
-
-        with req.session() as s:
-            r = s.get(f'{website}', headers=self.user_agents, verify=False)
-            for x in range(len(self.list_version_apache)):
-                if f"Apache/{self.list_version_apache[x]}" in r.headers['Server']:
-                    print(f"{website} => Apache/{self.list_version_apache[x]}")
-                    with open('apachexp.txt', 'a+') as wr:
-                        wr.write(f"{website}" + "\n")
+        # Checked
+        try:
+            with req.session() as s:
+                r = s.get(f'{website}', headers=self.user_agents, verify=False, timeout=30)
+                for x in range(len(self.list_version_apache)):
+                    if 'Server' in r.headers and f"Apache/{self.list_version_apache[x]}" in r.headers['Server']:
+                        print(Fore.GREEN + f"{website} => Apache/{self.list_version_apache[x]}" + Style.RESET_ALL)
+                        with open('apachexp.txt', 'a+') as wr:
+                            wr.write(f"{website}" + "\n")
+                    else:
+                        break
+                if "/usr/share/doc/apache2/README.Debian.gz" in r.text:
+                    print(Fore.GREEN + f"{website} => Apache Default Page Found!" + Style.RESET_ALL)
                 else:
-                    break
-                print(f"{website} => Cannot Find CVE-2021-41773 / CVE-2021-42013!")
+                    pass
+
+                print(f"{website} => Cannot Find Apache Vuln")
+        except:
+            pass
+
                     
 
     def main(self):
