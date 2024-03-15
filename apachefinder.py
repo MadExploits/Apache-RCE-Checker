@@ -63,8 +63,8 @@ class ApacheVuln:
                 target = read.split("\n")
                 with Pool(int(10)) as Th:
                     Th.map(self.ApacheCheck, target)
-                    Th.join()
                     Th.close()
+                    Th.join()
         else:
             print(f"File Not Found [{list_target}]")
 
